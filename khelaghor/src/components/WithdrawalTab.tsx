@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/config/api";
 
 interface UserInputField {
   name: string;
@@ -80,7 +81,7 @@ export function WithdrawalTab() {
     const fetchWithdrawMethods = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8000/api/withdraw-methods/active"
+          `${API_BASE_URL}/api/withdraw-methods/active`
         );
         const data: WithdrawMethodsResponse = await response.json();
 
@@ -147,7 +148,7 @@ export function WithdrawalTab() {
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(
-        "http://localhost:8000/api/withdraw-transactions",
+        `${API_BASE_URL}/api/withdraw-transactions`,
         {
           method: "POST",
           headers: {
@@ -294,7 +295,7 @@ export function WithdrawalTab() {
                   style={{ backgroundColor: method.colors.backgroundColor }}
                 >
                   <img
-                    src={`http://localhost:8000${method.methodImage}`}
+                    src={`${API_BASE_URL}${method.methodImage}`}
                     alt={method.methodNameEn}
                     className="w-8 h-8 object-contain"
                   />

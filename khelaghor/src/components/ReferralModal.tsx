@@ -1,5 +1,6 @@
 import { X, Copy } from "lucide-react";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/config/api";
 
 interface ReferralModalProps {
   isOpen: boolean;
@@ -34,14 +35,11 @@ export function ReferralModal({ isOpen, onClose }: ReferralModalProps) {
     setLoading(true);
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(
-        "http://localhost:8000/api/referrals/dashboard",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/referrals/dashboard`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const result = await response.json();
 
@@ -70,7 +68,7 @@ export function ReferralModal({ isOpen, onClose }: ReferralModalProps) {
     try {
       const token = localStorage.getItem("authToken");
       const response = await fetch(
-        "http://localhost:8000/api/referrals/claim-rewards",
+        `${API_BASE_URL}/api/referrals/claim-rewards`,
         {
           method: "POST",
           headers: {

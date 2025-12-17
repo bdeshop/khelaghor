@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/config/api";
 
 interface UserInputField {
   name: string;
@@ -72,7 +73,7 @@ export function DepositTab({ onSubmit, selectedPromotion }: DepositTabProps) {
     const fetchDepositMethods = async () => {
       try {
         const response = await fetch(
-          "http://localhost:8000/api/deposit-methods/active"
+          `${API_BASE_URL}/api/deposit-methods/active`
         );
         const data: DepositMethodsResponse = await response.json();
 
@@ -168,7 +169,7 @@ export function DepositTab({ onSubmit, selectedPromotion }: DepositTabProps) {
                   style={{ backgroundColor: method.background_color }}
                 >
                   <img
-                    src={`http://localhost:8000${method.method_image}`}
+                    src={`${API_BASE_URL}${method.method_image}`}
                     alt={method.method_name_en}
                     className="w-8 h-8 object-contain"
                   />

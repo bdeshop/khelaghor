@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { API_BASE_URL } from "@/config/api";
 
 interface BonusSettings {
   bonusPercentage: number;
@@ -77,7 +78,7 @@ export function PromotionDetailsModal({
           {/* Promotion Image */}
           <div className="mb-4">
             <img
-              src={`http://localhost:8000${promotion.promotionImage}`}
+              src={`${API_BASE_URL}${promotion.promotionImage}`}
               alt={language === "bangla" ? promotion.titleBn : promotion.title}
               className="w-full h-48 object-cover rounded-lg"
             />
@@ -182,7 +183,7 @@ export function PromotionDetailsModal({
                   className="bg-gray-900 rounded-lg p-2 border border-gray-800 flex items-center gap-2"
                 >
                   <img
-                    src={`http://localhost:8000${method.method_image}`}
+                    src={`${API_BASE_URL}${method.method_image}`}
                     alt={method.method_name_en}
                     className="w-8 h-8 object-contain"
                   />

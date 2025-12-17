@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/config/api";
 import { THEME_CONFIG } from "@/constants/theme";
 
 interface Banner {
@@ -41,14 +42,12 @@ export function HeroBanner() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:8000/api/banners/active"
-        );
+        const response = await fetch(`${API_BASE_URL}/api/banners/active`);
         const data = await response.json();
         if (data.success && data.banners) {
           setBanners(data.banners);
           const urls = data.banners.map(
-            (banner: Banner) => `http://localhost:8000${banner.imageUrl}`
+            (banner: Banner) => `${API_BASE_URL}${banner.imageUrl}`
           );
           setImageUrls(urls);
         }

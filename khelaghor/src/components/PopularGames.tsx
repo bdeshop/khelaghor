@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { THEME_CONFIG } from "@/constants/theme";
+import { API_BASE_URL } from "@/config/api";
 
 interface PopularGame {
   _id: string;
@@ -23,7 +24,7 @@ export function PopularGames() {
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/popular-games");
+        const response = await fetch(`${API_BASE_URL}/api/popular-games`);
         const data = await response.json();
         if (data.success && data.games) {
           setGames(data.games);
@@ -145,7 +146,7 @@ export function PopularGames() {
           >
             <div className="relative aspect-[4/3] overflow-hidden">
               <img
-                src={`http://localhost:8000${game.image}`}
+                src={`${API_BASE_URL}${game.image}`}
                 alt={game.title}
                 className="w-full h-full object-cover pointer-events-none"
               />

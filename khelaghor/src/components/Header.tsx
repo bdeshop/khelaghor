@@ -8,6 +8,7 @@ import { InboxModal } from "@/components/InboxModal";
 import { FundsModal } from "@/components/FundsModal";
 import { FreeSpinModal } from "@/components/FreeSpinModal";
 import { BettingRecordsModal } from "@/components/BettingRecordsModal";
+import { API_BASE_URL } from "@/config/api";
 import { TransactionRecordsModal } from "@/components/TransactionRecordsModal";
 import { TurnoverModal } from "@/components/TurnoverModal";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -79,7 +80,7 @@ export function Header() {
 
     setIsRefreshing(true);
     try {
-      const response = await fetch("http://localhost:8000/api/users/balance", {
+      const response = await fetch(`${API_BASE_URL}/api/users/balance`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

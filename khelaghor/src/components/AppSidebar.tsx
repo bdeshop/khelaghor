@@ -1,12 +1,5 @@
 import {
   Home,
-  Gamepad2,
-  Trophy,
-  Dices,
-  Flame,
-  Table2,
-  Fish,
-  Zap,
   Ticket,
   Star,
   Download,
@@ -29,76 +22,27 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { API_BASE_URL } from "@/config/api";
 
-const items = [
+interface Category {
+  _id: string;
+  name: string;
+  icon: string;
+}
+
+interface Game {
+  _id: string;
+  title: string;
+  image: string;
+  url: string;
+}
+
+const staticItems = [
   {
     titleKey: "home",
     url: "/",
     icon: Home,
     hasDropdown: false,
-    isModal: false,
-  },
-  {
-    titleKey: "hot",
-    url: "/hot",
-    icon: Gamepad2,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "sports",
-    url: "/sports",
-    icon: Trophy,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "casino",
-    url: "/casino",
-    icon: Dices,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "slots",
-    url: "/slots",
-    icon: Dices,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "crash",
-    url: "/crash",
-    icon: Flame,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "table",
-    url: "/table",
-    icon: Table2,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "fishing",
-    url: "/fishing",
-    icon: Fish,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "arcade",
-    url: "/arcade",
-    icon: Zap,
-    hasDropdown: true,
-    isModal: false,
-  },
-  {
-    titleKey: "lottery",
-    url: "/lottery",
-    icon: Ticket,
-    hasDropdown: true,
     isModal: false,
   },
   {
@@ -145,11 +89,17 @@ export function AppSidebar() {
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [apkUrl, setApkUrl] = useState<string>("");
   const [isContactUsOpen, setIsContactUsOpen] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [categoryGames, setCategoryGames] = useState<Record<string, Game[]>>(
+    {}
+  );
+  const [loadingGames, setLoadingGames] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const fetchAppVersion = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/app-version");
+        const response = await fetch(`${API_BASE_URL}/api/app-version`);
         const data = await response.json();
         if (data.success && data.appVersion?.apkUrl) {
           setApkUrl(data.appVersion.apkUrl);
@@ -159,8 +109,51 @@ export function AppSidebar() {
       }
     };
 
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/game-categories`);
+        const data = await response.json();
+        if (data.success && data.categories) {
+          setCategories(data.categories);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+
     fetchAppVersion();
+    fetchCategories();
   }, []);
+
+  const fetchCategoryGames = async (categoryId: string) => {
+    if (categoryGames[categoryId]) {
+      return; // Already fetched
+    }
+
+    setLoadingGames((prev) => ({ ...prev, [categoryId]: true }));
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/games?category=${categoryId}`
+      );
+      const data = await response.json();
+      if (data.success && data.games) {
+        setCategoryGames((prev) => ({ ...prev, [categoryId]: data.games }));
+      }
+    } catch (error) {
+      console.error("Failed to fetch games:", error);
+    } finally {
+      setLoadingGames((prev) => ({ ...prev, [categoryId]: false }));
+    }
+  };
+
+  const handleCategoryClick = (categoryId: string) => {
+    if (openCategory === categoryId) {
+      setOpenCategory(null);
+    } else {
+      setOpenCategory(categoryId);
+      fetchCategoryGames(categoryId);
+    }
+  };
 
   const handleDownloadClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -221,7 +214,107 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu className="space-y-1">
-                {items.map((item) => (
+                {staticItems.slice(0, 1).map((item) => (
+                  <SidebarMenuItem key={item.titleKey}>
+                    <SidebarMenuButton asChild={!item.isModal}>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className={`flex items-center justify-between gap-3 rounded-lg transition-colors hover:bg-red-600 hover:text-white ${
+                          isCollapsed
+                            ? "justify-center px-3 py-3"
+                            : "px-3 py-2.5"
+                        }`}
+                        activeClassName="bg-red-600 text-white"
+                      >
+                        <div className="flex items-center gap-3">
+                          <item.icon className="h-5 w-5 flex-shrink-0" />
+                          {!isCollapsed && (
+                            <span className="text-sm font-medium">
+                              {t(item.titleKey)}
+                            </span>
+                          )}
+                        </div>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+
+                {/* Dynamic Categories */}
+                {categories.map((category) => (
+                  <SidebarMenuItem key={category._id}>
+                    <SidebarMenuButton asChild={false}>
+                      <button
+                        onClick={() => handleCategoryClick(category._id)}
+                        className={`flex items-center justify-between gap-3 rounded-lg transition-colors hover:bg-red-600 hover:text-white w-full ${
+                          isCollapsed
+                            ? "justify-center px-3 py-3"
+                            : "px-3 py-2.5"
+                        } ${
+                          openCategory === category._id
+                            ? "bg-red-600 text-white"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={`${API_BASE_URL}${category.icon}`}
+                            alt={category.name}
+                            className="h-5 w-5 flex-shrink-0 object-contain"
+                          />
+                          {!isCollapsed && (
+                            <span className="text-sm font-medium capitalize">
+                              {category.name}
+                            </span>
+                          )}
+                        </div>
+                        {!isCollapsed && (
+                          <ChevronDown
+                            className={`h-4 w-4 flex-shrink-0 transition-transform ${
+                              openCategory === category._id ? "rotate-180" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </SidebarMenuButton>
+
+                    {/* Games Dropdown */}
+                    {openCategory === category._id && !isCollapsed && (
+                      <div className="mt-1 space-y-0 max-h-80 overflow-y-auto">
+                        {loadingGames[category._id] ? (
+                          <div className="px-3 py-2 text-xs text-gray-400">
+                            Loading games...
+                          </div>
+                        ) : categoryGames[category._id]?.length > 0 ? (
+                          <div className="space-y-0">
+                            {categoryGames[category._id].map((game) => (
+                              <button
+                                key={game._id}
+                                className="flex items-center gap-3 w-full px-3 py-2.5 text-left border-b border-gray-800 hover:bg-gray-800/50 transition-colors"
+                              >
+                                <img
+                                  src={`${API_BASE_URL}${game.image}`}
+                                  alt={game.title}
+                                  className="h-8 w-8 flex-shrink-0 object-cover rounded"
+                                />
+                                <span className="text-sm text-white truncate">
+                                  {game.title}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="px-3 py-2 text-xs text-gray-400">
+                            No games available
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </SidebarMenuItem>
+                ))}
+
+                {/* Static Items */}
+                {staticItems.slice(1).map((item) => (
                   <SidebarMenuItem key={item.titleKey}>
                     {item.titleKey === "contactUs" ? (
                       <>

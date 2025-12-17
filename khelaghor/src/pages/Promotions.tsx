@@ -4,6 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useSidebar } from "@/components/ui/sidebar";
 import { FundsModal } from "@/components/FundsModal";
 import { PromotionDetailsModal } from "@/components/PromotionDetailsModal";
+import { API_BASE_URL } from "@/config/api";
 
 interface BonusSettings {
   bonusPercentage: number;
@@ -63,7 +64,7 @@ export default function Promotions() {
   useEffect(() => {
     const fetchPromotions = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/promotions");
+        const response = await fetch(`${API_BASE_URL}/api/promotions`);
         const data: PromotionsResponse = await response.json();
 
         if (data.success) {
@@ -160,7 +161,7 @@ export default function Promotions() {
                   {/* Image */}
                   <div className="relative">
                     <img
-                      src={`http://localhost:8000${promo.promotionImage}`}
+                      src={`${API_BASE_URL}${promo.promotionImage}`}
                       alt={language === "bangla" ? promo.titleBn : promo.title}
                       className="w-full h-40 object-cover"
                     />

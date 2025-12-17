@@ -1,4 +1,7 @@
-export const THEME_CONFIG = {
+import { fetchThemeConfig } from "../lib/api";
+
+// Default fallback theme config
+const DEFAULT_THEME_CONFIG = {
   brand: {
     site_name: "KhelaGhor",
     logo: "/images/logo.png",
@@ -6,7 +9,6 @@ export const THEME_CONFIG = {
     logo_width: 160,
     logo_height: 32,
   },
-
   colors: {
     primary: "#f7b500",
     secondary: "#111111",
@@ -22,10 +24,9 @@ export const THEME_CONFIG = {
       muted: "#999999",
     },
   },
-
   header: {
     background: "#222222",
-    height: 56, // h-14 = 56px
+    height: 56,
     logo: {
       src: "/images/logo.png",
       height_mobile: 24,
@@ -49,21 +50,20 @@ export const THEME_CONFIG = {
       wallet: {
         bg: "linear-gradient(to bottom, #414141, #222222)",
         text: "#ffffff",
-        balance_color: "#60a5fa", // blue-400
+        balance_color: "#60a5fa",
       },
     },
     profile_menu: {
       bg: "#2a2a2a",
-      hover_bg: "#374151", // gray-700
+      hover_bg: "#374151",
       text: "#ffffff",
-      icon_color: "#9ca3af", // gray-400
-      vip_color: "#ef4444", // red-500
+      icon_color: "#9ca3af",
+      vip_color: "#ef4444",
     },
   },
-
   mobile_bar: {
     background: "#1a1a1a",
-    height: 64, // h-16 = 64px
+    height: 64,
     buttons: {
       deposit: {
         bg: "linear-gradient(to bottom, #db110f, #750503)",
@@ -79,7 +79,6 @@ export const THEME_CONFIG = {
       },
     },
   },
-
   banner: {
     nav_button: {
       bg: "rgba(255, 255, 255, 0.1)",
@@ -96,10 +95,9 @@ export const THEME_CONFIG = {
       desktop: 300,
     },
   },
-
   popular_games: {
     section_title: {
-      indicator_color: "#dc2626", // red-600
+      indicator_color: "#dc2626",
       text_color: "#ffffff",
     },
     card: {
@@ -107,10 +105,9 @@ export const THEME_CONFIG = {
       footer_bg: "#3a0808",
       text_color: "#ffffff",
       hover_scale: 1.05,
-      play_button_bg: "#dc2626", // red-600
+      play_button_bg: "#dc2626",
     },
   },
-
   game_grid: {
     card: {
       bg: "#1c1c1c",
@@ -119,16 +116,14 @@ export const THEME_CONFIG = {
       border_radius: 8,
     },
   },
-
   footer: {
     background: "#0b0b0b",
     text_color: "#ffffff",
     muted_text: "rgba(255, 255, 255, 0.7)",
-    heading_color: "#dc2626", // red-600
-    link_hover_color: "#f87171", // red-400
+    heading_color: "#dc2626",
+    link_hover_color: "#f87171",
     divider_color: "rgba(255, 255, 255, 0.6)",
   },
-
   modals: {
     overlay_bg: "rgba(0, 0, 0, 0.8)",
     content_bg: "#1c1c1c",
@@ -141,7 +136,6 @@ export const THEME_CONFIG = {
       icon_color: "#ffffff",
     },
   },
-
   sidebar: {
     background: "#121212",
     item_bg: "transparent",
@@ -153,7 +147,6 @@ export const THEME_CONFIG = {
     icon_active_color: "#ffffff",
     divider_color: "#333333",
   },
-
   buttons: {
     radius: 10,
     primary: {
@@ -172,7 +165,6 @@ export const THEME_CONFIG = {
       hover_bg: "#444444",
     },
   },
-
   typography: {
     font_family: {
       primary: "Inter, sans-serif",
@@ -187,7 +179,6 @@ export const THEME_CONFIG = {
       small: { desktop: 14, mobile: 12 },
     },
   },
-
   category_tabs: {
     bg: "#1c1c1c",
     active_bg: "#dc2626",
@@ -195,7 +186,6 @@ export const THEME_CONFIG = {
     active_text_color: "#ffffff",
     border_radius: 8,
   },
-
   forms: {
     input: {
       bg: "#222222",
@@ -211,4 +201,25 @@ export const THEME_CONFIG = {
   },
 } as const;
 
-export type ThemeConfig = typeof THEME_CONFIG;
+export type ThemeConfig = typeof DEFAULT_THEME_CONFIG;
+
+// Dynamic theme config that will be loaded from API
+let cachedThemeConfig: ThemeConfig | null = null;
+
+export async function getThemeConfig(): Promise<ThemeConfig> {
+  if (cachedThemeConfig) {
+    return cachedThemeConfig;
+  }
+
+  try {
+    const apiConfig = await fetchThemeConfig();
+    cachedThemeConfig = apiConfig as ThemeConfig;
+    return cachedThemeConfig;
+  } catch (error) {
+    console.warn("Failed to load theme config from API, using default:", error);
+    return DEFAULT_THEME_CONFIG;
+  }
+}
+
+// Export default for immediate use (will be replaced by API data)
+export const THEME_CONFIG = DEFAULT_THEME_CONFIG;

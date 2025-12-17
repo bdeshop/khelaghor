@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { API_BASE_URL } from "@/config/api";
 
 interface Favourite {
   _id: string;
@@ -24,7 +25,7 @@ const Favourites = () => {
   useEffect(() => {
     const fetchFavourites = async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/favourites");
+        const response = await fetch(`${API_BASE_URL}/api/favourites`);
         const data = await response.json();
         if (data.success && data.favourites) {
           setFavourites(data.favourites);
@@ -118,7 +119,7 @@ const Favourites = () => {
           >
             <div className="relative h-32 sm:h-44 md:h-48">
               <img
-                src={`http://localhost:8000${favourite.image}`}
+                src={`${API_BASE_URL}${favourite.image}`}
                 alt={favourite.title}
                 className="w-full h-full object-cover pointer-events-none"
               />

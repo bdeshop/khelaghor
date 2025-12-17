@@ -1,6 +1,7 @@
 import { X, Copy } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { API_BASE_URL } from "@/config/api";
 
 interface UserInputField {
   name: string;
@@ -129,23 +130,20 @@ export function PaymentConfirmationModal({
       // Get token from localStorage
       const token = localStorage.getItem("authToken");
 
-      const response = await fetch(
-        "http://localhost:8000/api/deposit-transactions",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            depositMethodId: depositMethod._id,
-            transactionId: transactionId.trim(),
-            amount: amount,
-            userInputData: userInputData,
-            promotionId: selectedPromotion?._id || undefined,
-          }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/api/deposit-transactions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          depositMethodId: depositMethod._id,
+          transactionId: transactionId.trim(),
+          amount: amount,
+          userInputData: userInputData,
+          promotionId: selectedPromotion?._id || undefined,
+        }),
+      });
 
       const data = await response.json();
 
@@ -298,7 +296,7 @@ export function PaymentConfirmationModal({
               </h3>
               <div className="bg-gray-800 rounded p-2 flex items-center gap-2 border border-gray-700">
                 <img
-                  src={`http://localhost:8000${
+                  src={`${API_BASE_URL}${
                     depositMethod.payment_page_image ||
                     depositMethod.method_image
                   }`}
